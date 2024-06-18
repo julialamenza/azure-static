@@ -1,47 +1,46 @@
-// main.tf
-
-
-#---------------------------------------------------------------------------------------
-# Create a static website in Azure Storage                                                           
-#   - Create a resource group for the storage account
-#   - Create a storage account
-#   - Create a container in the storage account
-#   - Create a static website in the storage account
-#   - Upload html files to the container (index.html & 404.html)                  
-#---------------------------------------------------------------------------------------
-
-# Create resource group using module ./modules/resource_group
-module "resource_group_dev" {
-  source                    = "./modules/resource_group"
-  resource_group_name       = module.resource_group_dev.resource_group_name
-  project_name              = local.project_name
-  environment               = local.environment
-  location                  = local.location
-  tags                      = local.tags
+module "resource_group" {
+  source              = "./modules/resource_group"
+  resource_group_name = var.resource_group_name
+  location            = var.location
 }
 
-# Create storage account using module ./modules/storage_account
-module "storage_account_dev" {
-  source                    = "./modules/storage_account"
-  project_name              = local.project_name
-  environment               = local.environment
-  location                  = local.location
-  resource_group_name       = module.resource_group_dev.resource_group_name
-  tags                      = local.tags
-  account_tier              = local.account_tier
-  account_replication_type  = local.account_replication_type
-  account_kind              = local.account_kind
-  enable_https_traffic_only = local.enable_https_traffic_only
-  min_tls_version           = local.min_tls_version
-  html_files_dir            = local.html_files_dir
-  assets_files_dir          = local.assets_files_dir  
-}
-# module "website" {
-#   source              = "./modules/website"
-#   resource_group_name  = "my-resources"
-#   location             = "East US"
-#   dns_zone_name        = "mitigasolutions.com"
-#   subdomain            = "test"
-#   cname_record         = "app.azurewebsites.net"
-# }
 
+module "source_storage_account" {
+  source                  = "./modules/storage_account"
+  storage_account_name    = "${var.base_source_storage_account_name}${random_string.source_suffix.result}"
+  resource_group_name     = module.resource_group.resource_group_name
+  location                = module.resource_group.resource_group_location
+  source_index_document   = "${path.root}/html/index.html"
+  source_error_document   = "${path.root}/html/404.html"
+  dummy_files             = [for file in var.source_dummy_files : "${path.root}/files/${file}"]
+  is_source               = true
+}
+
+module "assets_storage_account" {
+  source                  = "./modules/storage_account"
+  storage_account_name    = "${var.base_assets_storage_account_name}${random_string.assets_suffix.result}"
+  resource_group_name     = module.resource_group.resource_group_name
+  location                = module.resource_group.resource_group_location
+  dummy_files             = [for file in var.assets_dummy_files : "${path.root}/files/${file}"]
+  is_source               = false
+}
+
+resource "random_string" "source_suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
+
+resource "random_string" "assets_suffix" {
+  length  = 8
+  special = false
+  upper   = false
+}
+module "dns" {
+  source                    = "./modules/dns"
+  resource_group_name       = module.resource_group.resource_group_name
+  location                  = var.location
+  domain_name               = "mitigasolutions.com"
+  subdomain_name            = "test"
+  storage_account_hostname  = local.storage_account_hostname
+}
