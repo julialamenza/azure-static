@@ -42,33 +42,7 @@ The project is structured into multiple modules:
 
 ````
 
-##### Running the Code
-
-1. **Initialize Terraform**
-
-   Run the following command to initialize Terraform. This will download the necessary provider plugins and initialize the backend.
-
-````
-terraform init
-````
-
-2. **Review the Execution Plan**
-
-Run the following command to create an execution plan. This will show you what actions Terraform will take to achieve the desired state.
-
-````
-terraform plan
-````
-
-3. **Apply the Configuration**
-
-Run the following command to apply the configuration. This will create the resources in your Azure subscription.
-
-````
-terraform apply
-````
-
-#### Module Breakdown
+### Module Breakdown
 Resource Group Module
 The resource group module creates a resource group in Azure.
 
@@ -213,6 +187,34 @@ module "dns" {
   storage_account_hostname  = local.storage_account_hostname
 }
 ````
+### Running the Code
+
+1. **Initialize Terraform**
+
+   Run the following command to initialize Terraform. This will download the necessary provider plugins and initialize the backend.
+
+````
+terraform init
+````
+
+2. **Review the Execution Plan**
+
+Run the following command to create an execution plan. This will show you what actions Terraform will take to achieve the desired state.
+
+````
+terraform plan
+````
+
+3. **Apply the Configuration**
+
+Run the following command to apply the configuration. This will create the resources in your Azure subscription.
+
+````
+terraform apply
+````
+
+### Other Usage Methods:
+
 #### Providing Variable Values
 You can provide values for these variables in several ways:
 
