@@ -40,7 +40,7 @@ module "dns" {
   source                    = "./modules/dns"
   resource_group_name       = module.resource_group.resource_group_name
   location                  = var.location
-  domain_name               = "mitigasolutions.com"
+  domain_name               = "jlamenza.com"
   subdomain_name            = "test"
   storage_account_hostname  = local.storage_account_hostname
 }
